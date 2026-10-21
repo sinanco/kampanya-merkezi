@@ -1,0 +1,41 @@
+name: Otomatik Kampanya Senkronizasyonu
+
+on:
+  schedule:
+    # Her 3 günde bir gece 03:00'te çalışır
+    - cron: '0 3 */3 * *'
+    # Her ayın 1. günü sabah 04:00'te çalışır
+    - cron: '0 4 1 * *'
+  workflow_dispatch: # İstediğin an tek tuşla manuel çalıştırabilmen için
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Depo Dosyalarını Çek
+        uses: actions/checkout@v4
+
+      - name: Python Kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Gerekli Kütüphaneleri ve Tarayıcıyı Kur
+        run: |
+          pip install playwright beautifulsoup4
+          playwright install chromium --with-deps
+
+      - name: Bankalardan Kampanyaları Çek
+        run: python scraper.py
+
+      - name: Güncel Kampanyaları Kaydet ve Yayınla
+        run: |
+          git config --global user.name "Kampanya Botu"
+          git config --global user.email "bot@kampanyamerkezi.local"
+          git add campaigns.json
+          git diff --staged --quiet || git commit -m "Otomatik kampanya güncellemesi: $(date +'%Y-%m-%d %H:%M')"
+          git push
