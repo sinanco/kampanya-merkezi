@@ -228,8 +228,7 @@
         // ==========================================
         // 1. ONLINE VERİ KAYNAĞI AYARI
         // ==========================================
-        // İleride uzaktan güncellemek istersen GitHub Gist Raw JSON linkini buraya yapıştırabilirsin:
-        const REMOTE_JSON_URL = "ampaigns.json"; 
+        const REMOTE_JSON_URL = "campaigns.json"; 
 
         // Kategoriler
         const CATEGORIES = [
@@ -254,53 +253,24 @@
             { id: "Bankkart", name: "Bankkart (Ziraat)", color: "#EC4899", url: "https://www.bankkart.com.tr/kampanyalar" }
         ];
 
-        // Varsayılan Kampanya Veritabanı
+        // Varsayılan Kampanya Veritabanı (Yedek)
         const DEFAULT_CAMPAIGNS = [
-            // --- MARKET KAMPANYALARI ---
-            { id: 1, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Market", brand: "Migros, CarrefourSA, A101, ŞOK", title: "Market Alışverişlerinize Toplam 500 TL MaxiPuan!", desc: "Seçili marketlerden farklı günlerde ve tek seferde yapacağınız her 1.250 TL ve üzeri alışverişe 100 TL, toplam 500 TL MaxiPuan.", reward: "500 TL Puan", minSpend: "5 x 1.250 TL", date: "1 - 31 Ekim", color: "#EF4444", isFeatured: true, howToJoin: "İşCep veya Maximum Mobil uygulamasında 'Kampanyalar' bölümünden katılabilirsiniz.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
-            { id: 2, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Market", brand: "Tüm Gıda Marketleri", title: "Market Harcamalarınıza 400 TL Bonus!", desc: "Yurt içi gıda marketlerinde farklı günlerde yapacağınız her 1.000 TL ve üzeri harcamaya 80 TL, toplamda 400 TL Bonus.", reward: "400 TL Bonus", minSpend: "5 x 1.000 TL", date: "1 - 31 Ekim", color: "#10B981", isFeatured: true, howToJoin: "Harcama öncesi BonusFlaş uygulamasından 'Hemen Katıl' butonuna basın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
-            { id: 3, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Market", brand: "Migros & Macrocenter", title: "Migros ve Sanal Market'te 350 TL Worldpuan", desc: "Farklı günlerde yapılacak 4 adet 1.000 TL ve üzeri Migros veya Migros Sanal Market alışverişine 350 TL Worldpuan.", reward: "350 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil uygulamasından kampanya katılımınızı aktif edin.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
-            { id: 4, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Market", brand: "CarrefourSA & Tüm Marketler", title: "Market Alışverişlerinize 450 TL Chip-Para", desc: "Market sektöründe yapacağınız 1.500 TL ve üzeri her ikinci harcamaya 150 TL, toplam 450 TL Chip-para.", reward: "450 TL Chip", minSpend: "1.500 TL", date: "1 - 31 Ekim", color: "#F59E0B", isFeatured: true, howToJoin: "Juzdan uygulamasından harcama öncesi 'Hemen Katıl'a tıklayın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
-            { id: 5, bank: "Bankkart", bankFullName: "Bankkart (Ziraat)", category: "Market", brand: "Tarım Kredi, A101, BİM, ŞOK", title: "Market Alışverişlerinde 500 TL Bankkart Lira!", desc: "Anlaşmalı marketlerden tek seferde yapılacak her 1.000 TL ve üzeri alışverişe 100 TL, toplam 500 TL Bankkart Lira.", reward: "500 TL Lira", minSpend: "5 x 1.000 TL", date: "Ay sonuna kadar", color: "#EC4899", isFeatured: true, howToJoin: "Bankkart Mobil'den veya MARKET yazıp 4757'ye SMS göndererek katılın.", sourceUrl: "https://www.bankkart.com.tr/kampanyalar" },
-            { id: 6, bank: "Paraf", bankFullName: "Paraf (Halkbank)", category: "Market", brand: "Tüm Marketler", title: "Market Harcamalarınıza 300 TL ParafPara", desc: "Gıda marketlerinde yapacağınız 4 adet 1.000 TL ve üzeri alışverişe toplam 300 TL ParafPara.", reward: "300 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#0EA5E9", isFeatured: false, howToJoin: "Paraf Mobil uygulamasından veya MARKET yazıp 3404'e SMS göndererek katılın.", sourceUrl: "https://www.paraf.com.tr/tr/kampanyalar.html" },
-
-            // --- AKARYAKIT VE ŞARJ KAMPANYALARI ---
-            { id: 7, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Akaryakıt", brand: "Opet & Sunpet", title: "Opet ve Sunpet'te 350 TL Bonus Fırsatı!", desc: "Farklı günlerde ve tek seferde yapılacak 4 adet 1.000 TL ve üzeri akaryakıt veya otogaz harcamasına 350 TL Bonus.", reward: "350 TL Bonus", minSpend: "4 x 1.000 TL", date: "1 - 31 Ekim", color: "#10B981", isFeatured: true, howToJoin: "BonusFlaş uygulamasındaki 'Hemen Katıl' butonuna tıklayın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
-            { id: 8, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Akaryakıt", brand: "Shell & Opet", title: "Akaryakıt Alımlarınıza 300 TL Worldpuan", desc: "World üye işyeri istasyonlarından farklı günlerde 4 kez 1.000 TL ve üzeri yakıt alımına 300 TL Worldpuan.", reward: "300 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil üzerinden kampanyaya katılabilirsiniz.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
-            { id: 9, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Akaryakıt", brand: "Petrol Ofisi & TotalEnergies", title: "Petrol Ofisi ve TotalEnergies'te 320 TL MaxiPuan", desc: "Farklı günlerde 4 adet 1.000 TL ve üzeri akaryakıt harcamasına 320 TL MaxiPuan.", reward: "320 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "Maximum Mobil veya İşCep üzerinden katılabilirsiniz.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
-            { id: 10, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Akaryakıt", brand: "ZES, Eşarj, Trugo & Opet", title: "Elektrikli Araç Şarjı ve Yakıta 300 TL Chip-Para", desc: "Akaryakıt istasyonları ve elektrikli araç şarj istasyonlarında toplam 3.500 TL harcamaya 300 TL Chip-para.", reward: "300 TL Chip", minSpend: "3.500 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulaması üzerinden kampanyaya katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
-            { id: 11, bank: "CardFinans", bankFullName: "CardFinans (QNB)", category: "Akaryakıt", brand: "Aytemiz & Shell", title: "Akaryakıt Harcamalarına 250 TL ParaPuan", desc: "Farklı günlerde yapılacak 4 adet 900 TL ve üzeri akaryakıt alımına 250 TL ParaPuan.", reward: "250 TL Puan", minSpend: "4 x 900 TL", date: "Ay sonuna kadar", color: "#3B82F6", isFeatured: false, howToJoin: "QNB Mobil uygulamasından kampanya katılımınızı onaylayın.", sourceUrl: "https://www.cardfinans.com/kampanyalar" },
-
-            // --- E-TİCARET KAMPANYALARI ---
-            { id: 12, bank: "World", bankFullName: "World (Yapı Kredi)", category: "E-Ticaret", brand: "Trendyol & Hepsiburada", title: "Trendyol ve Hepsiburada'da 600 TL Worldpuan!", desc: "Tek seferde yapılacak her 2.000 TL ve üzeri alışverişe 200 TL, toplamda 600 TL Worldpuan.", reward: "600 TL Puan", minSpend: "3 x 2.000 TL", date: "Son 5 Gün", color: "#6366F1", isFeatured: true, howToJoin: "World Mobil uygulamasından 'Hemen Katıl' butonuna basın.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
-            { id: 13, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "E-Ticaret", brand: "Amazon.com.tr & N11", title: "Online Alışverişlerinize 500 TL Bonus!", desc: "Seçili e-ticaret sitelerinde tek seferde 2.500 TL ve üzeri her harcamaya 250 TL, toplam 500 TL Bonus.", reward: "500 TL Bonus", minSpend: "2 x 2.500 TL", date: "1 - 31 Ekim", color: "#10B981", isFeatured: true, howToJoin: "BonusFlaş uygulaması üzerinden harcama öncesi katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
-            { id: 14, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "E-Ticaret", brand: "Pazarama & Trendyol", title: "İnternet Alışverişlerinize 400 TL MaxiPuan", desc: "Online pazaryerlerinde yapacağınız 2.000 TL ve üzeri alışverişlerinize toplam 400 TL MaxiPuan.", reward: "400 TL Puan", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "İşCep veya Maximum Mobil'den katılım sağlayın.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
-            { id: 15, bank: "Axess", bankFullName: "Axess (Akbank)", category: "E-Ticaret", brand: "Hepsiburada & Amazon", title: "E-Ticaret Harcamalarına 350 TL Chip-Para", desc: "İnternetten yapacağınız 2.500 TL ve üzeri alışverişe anında 350 TL Chip-para.", reward: "350 TL Chip", minSpend: "2.500 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulaması üzerinden kampanyaya katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
-            { id: 16, bank: "Bankkart", bankFullName: "Bankkart (Ziraat)", category: "E-Ticaret", brand: "Trendyol, Hepsiburada, PTTAVM", title: "E-Ticaret Alışverişlerinde 400 TL Bankkart Lira", desc: "Seçili e-ticaret sitelerinden tek seferde 2.000 TL ve üzeri harcamaya 400 TL Bankkart Lira.", reward: "400 TL Lira", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#EC4899", isFeatured: false, howToJoin: "Bankkart Mobil'den veya ETICARET yazıp 4757'ye SMS gönderin.", sourceUrl: "https://www.bankkart.com.tr/kampanyalar" },
-
-            // --- ELEKTRONİK VE OYUN KAMPANYALARI ---
-            { id: 17, bank: "CardFinans", bankFullName: "CardFinans (QNB)", category: "Elektronik", brand: "MediaMarkt, Teknosa, Vatan", title: "Teknoloji ve Donanım Alışverişlerinde Peşin Fiyatına 6 Taksit", desc: "Bilgisayar, ağ ekipmanları ve elektronik ürün alışverişlerinizde 25.000 TL'ye kadar vade farksız 6 taksit.", reward: "6 Taksit", minSpend: "3.000 TL", date: "Yıl sonuna kadar", color: "#3B82F6", isFeatured: false, howToJoin: "Ödeme adımında 6 taksit seçmeniz yeterlidir.", sourceUrl: "https://www.cardfinans.com/kampanyalar" },
-            { id: 18, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Elektronik", brand: "PlayStation Store, Steam, İtopya", title: "Oyun ve Teknoloji Harcamalarına 500 TL İndirim!", desc: "Dijital oyun mağazaları ve teknoloji marketlerinde yapılacak 2.000 TL üzeri harcamaya 500 TL indirim.", reward: "500 TL İndirim", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: true, howToJoin: "Maximum Mobil'den 'Oyun ve Teknoloji' kampanyasına katılın.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
-            { id: 19, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Elektronik", brand: "Vatan Bilgisayar & MediaMarkt", title: "Elektronik Alışverişlerinize 750 TL Bonus!", desc: "Tek seferde yapılacak 15.000 TL ve üzeri elektronik harcamasına 750 TL Bonus fırsatı.", reward: "750 TL Bonus", minSpend: "15.000 TL", date: "Ay sonuna kadar", color: "#10B981", isFeatured: false, howToJoin: "BonusFlaş uygulaması üzerinden harcama öncesi katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
-            { id: 20, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Elektronik", brand: "Apple, Gürgençler, Troy", title: "Seçili Teknoloji Mağazalarında +3 Taksit ve 500 TL Puan", desc: "10.000 TL ve üzeri alışverişlerinize vade farksız ek taksit ve 500 TL Worldpuan.", reward: "500 TL Puan", minSpend: "10.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil uygulamasından kampanya katılımınızı onaylayın.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
-
-            // --- GİYİM VE KOZMETİK KAMPANYALARI ---
-            { id: 21, bank: "Bankkart", bankFullName: "Bankkart (Ziraat)", category: "Giyim", brand: "Zara, Mavi, Boyner, LCW", title: "Giyim ve Ayakkabı Alışverişine 450 TL Bankkart Lira", desc: "Anlaşmalı giyim mağazalarından tek seferde yapacağınız 2.500 TL ve üzeri alışverişe 450 TL Bankkart Lira.", reward: "450 TL Lira", minSpend: "2.500 TL", date: "1 - 31 Ekim", color: "#EC4899", isFeatured: false, howToJoin: "Bankkart Mobil uygulamasından veya GIYIM yazıp 4757'ye SMS gönderin.", sourceUrl: "https://www.bankkart.com.tr/kampanyalar" },
-            { id: 22, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Giyim", brand: "Boyner, Beymen, Network", title: "Giyim ve Kozmetik Harcamalarına 500 TL Chip-Para", desc: "Giyim sektöründe yapacağınız 3.000 TL ve üzeri alışverişe 500 TL Chip-para.", reward: "500 TL Chip", minSpend: "3.000 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulamasından harcama öncesi katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
-            { id: 23, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Giyim", brand: "Zara, Bershka, Pull&Bear, Stradivarius", title: "Inditex Mağazalarında 300 TL Worldpuan", desc: "Tek seferde yapılacak 2.000 TL ve üzeri giyim alışverişine 300 TL Worldpuan.", reward: "300 TL Puan", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil üzerinden katılım sağlayın.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
-            { id: 24, bank: "Paraf", bankFullName: "Paraf (Halkbank)", category: "Giyim", brand: "Tüm Giyim Mağazaları", title: "Giyim Alışverişlerinize 350 TL ParafPara", desc: "Yurt içi giyim ve ayakkabı mağazalarında 2.500 TL harcamaya 350 TL ParafPara.", reward: "350 TL Puan", minSpend: "2.500 TL", date: "Ay sonuna kadar", color: "#0EA5E9", isFeatured: false, howToJoin: "Paraf Mobil'den veya GIYIM yazıp 3404'e SMS gönderin.", sourceUrl: "https://www.paraf.com.tr/tr/kampanyalar.html" },
-
-            // --- SEYAHAT VE KONAKLAMA KAMPANYALARI ---
-            { id: 25, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Seyahat", brand: "THY, Pegasus, Obilet, ETS", title: "Uçak Bileti ve Otel Harcamalarında 600 TL MaxiPuan", desc: "Tek seferde yapılacak 4.000 TL ve üzeri seyahat ve konaklama harcamalarınıza 600 TL MaxiPuan.", reward: "600 TL Puan", minSpend: "4.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "Maximum Mobil üzerinden harcama öncesi katılım sağlayın.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
-            { id: 26, bank: "Paraf", bankFullName: "Paraf (Halkbank)", category: "Seyahat", brand: "THY, AJet, Pegasus", title: "Yurt İçi ve Yurt Dışı Uçak Biletine 500 TL ParafPara", desc: "Havayolu firmalarından alacağınız 3.500 TL ve üzeri uçak biletlerine 500 TL ParafPara.", reward: "500 TL Puan", minSpend: "3.500 TL", date: "Ay sonuna kadar", color: "#0EA5E9", isFeatured: false, howToJoin: "Paraf Mobil'den veya SEYAHAT yazıp 3404'e SMS gönderin.", sourceUrl: "https://www.paraf.com.tr/tr/kampanyalar.html" },
-            { id: 27, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Seyahat", brand: "Jolly Tur, Setur, Tatilbudur", title: "Konaklama ve Tur Harcamalarına 1.000 TL Chip-Para", desc: "Seçili acentelerden yapılacak 15.000 TL ve üzeri rezervasyonlara 1.000 TL Chip-para ve 6 taksit.", reward: "1.000 TL Chip", minSpend: "15.000 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulaması üzerinden kampanyaya katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
-            { id: 28, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Seyahat", brand: "Yurt Dışı Harcamalar & Duty Free", title: "Yurt Dışı Fiziki POS Harcamalarınıza %10 Bonus!", desc: "Yurt dışı seyahatlerinizde yapacağınız 5.000 TL ve üzeri alışverişlere toplam 750 TL Bonus.", reward: "750 TL Bonus", minSpend: "5.000 TL", date: "Ay sonuna kadar", color: "#10B981", isFeatured: false, howToJoin: "Seyahat öncesi BonusFlaş'tan 'Yurt Dışı Kampanyası'na katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
-
-            // --- RESTORAN VE KAFE KAMPANYALARI ---
-            { id: 29, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Restoran", brand: "Tüm Restoran ve Kafeler", title: "Restoran ve Kahve Harcamalarına %20 Bonus!", desc: "Hafta sonu kafe ve restoranlarda yapacağınız 500 TL ve üzeri harcamalara %20, toplamda 300 TL Bonus.", reward: "300 TL Bonus", minSpend: "500 TL", date: "Her Hafta Sonu", color: "#10B981", isFeatured: false, howToJoin: "BonusFlaş uygulaması üzerinden 'Restoran Kampanyası'na katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
-            { id: 30, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Restoran", brand: "Yemeksepeti, GetirYemek, Trendyol Yemek", title: "Online Yemek Siparişlerinize 200 TL MaxiPuan", desc: "Tek seferde yapılacak 400 TL ve üzeri her yemek siparişine 50 TL, toplamda 200 TL MaxiPuan.", reward: "200 TL Puan", minSpend: "4 x 400 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "Maximum Mobil'den kampanyaya katılabilirsiniz.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
-            { id: 31, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Restoran", brand: "Starbucks, Kahve Dünyası, Espressolab", title: "Kahve Zincirlerinde 5. Kahveniz World'den!", desc: "Anlaşmalı kahve mağazalarında yapacağınız 4 adet 150 TL üzeri harcamaya 150 TL Worldpuan.", reward: "150 TL Puan", minSpend: "4 x 150 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil'den 'Kahve Kampanyası'nı aktif edin.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
-            { id: 32, bank: "CardFinans", bankFullName: "CardFinans (QNB)", category: "Restoran", brand: "Tüm Restoranlar", title: "Restoran Harcamalarınıza 250 TL ParaPuan", desc: "Cumartesi ve Pazar günleri restoranlarda yapılacak 1.000 TL ve üzeri harcamaya 250 TL ParaPuan.", reward: "250 TL Puan", minSpend: "1.000 TL", date: "Hafta Sonları", color: "#3B82F6", isFeatured: false, howToJoin: "QNB Mobil uygulamasından katılabilirsiniz.", sourceUrl: "https://www.cardfinans.com/kampanyalar" }
+            {
+                id: 1,
+                bank: "Bankkart",
+                bankFullName: "Bankkart (Ziraat)",
+                category: "Akaryakıt",
+                brand: "TotalEnergies",
+                title: "TotalEnergies'de 500 TL Jest Lira",
+                desc: "TotalEnergies istasyonlarında 4. akaryakıt ya da otogaz harcamanıza 500 TL Jest Lira.",
+                reward: "500 TL Puan",
+                minSpend: "4 x 1.000 TL",
+                date: "Aktif Kampanya",
+                color: "#EC4899",
+                isFeatured: true,
+                howToJoin: "Bankkart Mobil uygulamasından katılım sağlayabilirsiniz.",
+                sourceUrl: "https://www.bankkart.com.tr/kampanyalar/akaryakit"
+            }
         ];
 
         // ==========================================
@@ -313,38 +283,21 @@
         let selectedBanks = JSON.parse(localStorage.getItem("selectedBanks")) || CARD_PROGRAMS.map(b => b.id);
 
         // ==========================================
-        // 3. OTOMATİK GÜNCELLEME MOTORU (3 Günde Bir & Ayın 1'i)
+        // 3. GÜNCELLEME VE VERİ ÇEKME MOTORU
         // ==========================================
         async function checkAndSyncCampaigns(force = false) {
             const now = new Date();
-            const lastSync = localStorage.getItem("lastSyncTimestamp");
-            const lastSyncMonth = localStorage.getItem("lastSyncMonth");
-            const currentMonthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
-
-            const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
-            const isFirstDayOfMonth = now.getDate() === 1 && lastSyncMonth !== currentMonthKey;
-            const isThreeDaysPassed = !lastSync || (now.getTime() - parseInt(lastSync)) > THREE_DAYS_MS;
-
-            if (force || isFirstDayOfMonth || isThreeDaysPassed) {
-                await fetchCampaignsFromSource();
-                localStorage.setItem("lastSyncTimestamp", now.getTime().toString());
-                localStorage.setItem("lastSyncMonth", currentMonthKey);
-                if (force) showToast("Kampanyalar güncel verilerle senkronize edildi!");
-            } else {
-                async function checkAndSyncCampaigns(force = false) {
-            const now = new Date();
-            // Her yenilemede ve açılışta doğrudan güncel campaigns.json dosyasını çekmeye zorla
             await fetchCampaignsFromSource();
-            
             localStorage.setItem("lastSyncTimestamp", now.getTime().toString());
             updateSyncStatusUI();
             renderAll();
+            if (force) showToast("Kampanyalar güncellendi!");
         }
 
         async function fetchCampaignsFromSource() {
             try {
-                // Tarayıcı önbelleğine takılmasın diye sonuna anlık zaman damgası ekliyoruz (?v=...)
-                const res = await fetch("campaigns.json?v=" + new Date().getTime(), { cache: "no-store" });
+                // Zaman damgası (?v=...) ekleyerek tarayıcı önbelleğine takılmasını önlüyoruz
+                const res = await fetch(REMOTE_JSON_URL + "?v=" + new Date().getTime(), { cache: "no-store" });
                 if (res.ok) {
                     const textData = await res.text();
                     if (textData.trim().startsWith("[")) {
@@ -360,28 +313,6 @@
             const cached = localStorage.getItem("cachedCampaigns");
             campaigns = cached ? JSON.parse(cached) : DEFAULT_CAMPAIGNS;
         }
-            }
-
-            updateSyncStatusUI();
-            renderAll();
-        }
-
-        async function fetchCampaignsFromSource() {
-            if (REMOTE_JSON_URL.trim() !== "") {
-                try {
-                    const res = await fetch(REMOTE_JSON_URL, { cache: "no-store" });
-                    if (res.ok) {
-                        campaigns = await res.json();
-                        localStorage.setItem("cachedCampaigns", JSON.stringify(campaigns));
-                        return;
-                    }
-                } catch (err) {
-                    console.warn("Uzaktan JSON çekilemedi, yerel veri kullanılıyor:", err);
-                }
-            }
-            campaigns = DEFAULT_CAMPAIGNS;
-            localStorage.setItem("cachedCampaigns", JSON.stringify(campaigns));
-        }
 
         function updateSyncStatusUI() {
             const lastSync = parseInt(localStorage.getItem("lastSyncTimestamp") || Date.now());
@@ -390,7 +321,7 @@
             const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
             document.getElementById("syncStatusText").innerHTML = `
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Oto-Kontrol Aktif (3 Günde Bir & Ayın 1'i) • Son: ${dateStr} ${timeStr}
+                Oto-Kontrol Aktif • Son: ${dateStr} ${timeStr}
             `;
         }
 
@@ -435,7 +366,6 @@
             const section = document.getElementById("featuredSection");
             const container = document.getElementById("featuredContainer");
 
-            // Arama yapılıyorsa veya kategori seçiliyse vitrini gizle ki sonuçlar hemen görünsün
             if (searchQuery.trim() !== "" || selectedCategory !== "Tümü") {
                 section.classList.add("hidden");
                 return;
@@ -574,7 +504,6 @@
             showToast("Katılım bilgisi panoya kopyalandı!");
         }
 
-        // Cüzdanım (Kart Filtresi) İşlemleri
         function openWalletModal() {
             const list = document.getElementById("bankFilterList");
             list.innerHTML = CARD_PROGRAMS.map(b => {
@@ -619,7 +548,6 @@
             badge.textContent = selectedBanks.length === CARD_PROGRAMS.length ? "Tümü" : `${selectedBanks.length} Kart`;
         }
 
-        // Karanlık / Aydınlık Mod
         function toggleTheme() {
             const html = document.documentElement;
             const icon = document.getElementById("themeIcon");
@@ -637,7 +565,6 @@
             setTimeout(() => toast.classList.add("hidden"), 2500);
         }
 
-        // Başlangıç Yüklemesi
         window.addEventListener("DOMContentLoaded", () => {
             if (localStorage.getItem("theme") === "light") {
                 document.documentElement.classList.remove("dark");
