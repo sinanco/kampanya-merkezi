@@ -331,8 +331,35 @@
                 localStorage.setItem("lastSyncMonth", currentMonthKey);
                 if (force) showToast("Kampanyalar güncel verilerle senkronize edildi!");
             } else {
-                const cached = localStorage.getItem("cachedCampaigns");
-                campaigns = cached ? JSON.parse(cached) : DEFAULT_CAMPAIGNS;
+                async function checkAndSyncCampaigns(force = false) {
+            const now = new Date();
+            // Her yenilemede ve açılışta doğrudan güncel campaigns.json dosyasını çekmeye zorla
+            await fetchCampaignsFromSource();
+            
+            localStorage.setItem("lastSyncTimestamp", now.getTime().toString());
+            updateSyncStatusUI();
+            renderAll();
+        }
+
+        async function fetchCampaignsFromSource() {
+            try {
+                // Tarayıcı önbelleğine takılmasın diye sonuna anlık zaman damgası ekliyoruz (?v=...)
+                const res = await fetch("campaigns.json?v=" + new Date().getTime(), { cache: "no-store" });
+                if (res.ok) {
+                    const textData = await res.text();
+                    if (textData.trim().startsWith("[")) {
+                        campaigns = JSON.parse(textData);
+                        localStorage.setItem("cachedCampaigns", JSON.stringify(campaigns));
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn("JSON çekilemedi, önbellek deneniyor:", err);
+            }
+            
+            const cached = localStorage.getItem("cachedCampaigns");
+            campaigns = cached ? JSON.parse(cached) : DEFAULT_CAMPAIGNS;
+        }
             }
 
             updateSyncStatusUI();
