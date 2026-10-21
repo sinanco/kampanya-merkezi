@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kampanya Merkezi | Kredi Kartı Fırsatları</title>
+    <!-- Tailwind CSS & İkon Kütüphaneleri -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        darkBg: '#09090B',
+                        darkCard: '#18181B',
+                        darkBorder: '#27272A',
+                        emeraldAccent: '#10B981',
+                        amberAccent: '#F59E0B'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-header { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-zinc-100 dark:bg-darkBg text-zinc-900 dark:text-zinc-100 min-h-screen transition-colors duration-200 pb-16">
+
+    <!-- ÜST BAR (HEADER) -->
+    <header class="sticky top-0 z-30 bg-white/80 dark:bg-darkBg/80 glass-header border-b border-zinc-200 dark:border-darkBorder">
+        <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-500">
+                    <i data-lucide="layers" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <h1 class="font-extrabold text-lg tracking-tight">Kampanya Merkezi</h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-400 rounded-full border border-emerald-500/20">Pro</span>
+                    </div>
+                    <p id="syncStatusText" class="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Kontrol ediliyor...
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Cüzdanım (Kart Filtresi) Butonu -->
+                <button onclick="openWalletModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-zinc-200/70 dark:bg-darkCard hover:bg-zinc-300/70 dark:hover:bg-zinc-800 border border-zinc-300/50 dark:border-darkBorder text-xs font-semibold transition">
+                    <i data-lucide="credit-card" class="w-4 h-4 text-emerald-500"></i>
+                    <span>Kartlarım</span>
+                    <span id="selectedCardsBadge" class="ml-0.5 px-1.5 py-0.2 bg-emerald-500 text-white rounded-md text-[10px]">Tümü</span>
+                </button>
+
+                <!-- Manuel Senkronizasyon Butonu -->
+                <button onclick="forceSync()" title="Kampanyaları Şimdi Kontrol Et" class="p-2 rounded-xl bg-zinc-200/70 dark:bg-darkCard hover:bg-zinc-300/70 dark:hover:bg-zinc-800 border border-zinc-300/50 dark:border-darkBorder transition">
+                    <i id="syncIcon" data-lucide="refresh-cw" class="w-4 h-4 text-zinc-600 dark:text-zinc-300"></i>
+                </button>
+
+                <!-- Karanlık / Aydınlık Mod Butonu -->
+                <button onclick="toggleTheme()" title="Tema Değiştir" class="p-2 rounded-xl bg-zinc-200/70 dark:bg-darkCard hover:bg-zinc-300/70 dark:hover:bg-zinc-800 border border-zinc-300/50 dark:border-darkBorder transition">
+                    <i id="themeIcon" data-lucide="sun" class="w-4 h-4 text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ANA İÇERİK -->
+    <main class="max-w-5xl mx-auto px-4 pt-4 space-y-6">
+
+        <!-- ARAMA KUTUSU (Marka, Banka veya Kampanya Arama) -->
+        <div class="relative">
+            <i data-lucide="search" class="w-5 h-5 text-emerald-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
+            <input 
+                type="text" 
+                id="searchInput" 
+                oninput="handleSearch(this.value)"
+                placeholder="Marka, sektör veya kart ara (Örn: Migros, Opet, Trendyol, Bonus)..." 
+                class="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder focus:outline-none focus:border-emerald-500 text-sm shadow-sm transition"
+            >
+            <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200">
+                <i data-lucide="x-circle" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- HIZLI MARKA ETİKETLERİ -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            <span class="text-xs font-semibold text-zinc-400 shrink-0">Popüler Markalar:</span>
+            <button onclick="quickBrandSearch('Migros')" class="shrink-0 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500 transition">Migros</button>
+            <button onclick="quickBrandSearch('Opet')" class="shrink-0 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500 transition">Opet</button>
+            <button onclick="quickBrandSearch('Trendyol')" class="shrink-0 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500 transition">Trendyol</button>
+            <button onclick="quickBrandSearch('Hepsiburada')" class="shrink-0 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500 transition">Hepsiburada</button>
+            <button onclick="quickBrandSearch('Shell')" class="shrink-0 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500 transition">Shell</button>
+            <button onclick="quickBrandSearch('Zara')" class="shrink-0 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500 transition">Zara</button>
+            <button onclick="quickBrandSearch('THY')" class="shrink-0 px-2.5 py-1 rounded-lg text-xs bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500 transition">THY</button>
+        </div>
+
+        <!-- GÜNÜN ÖNE ÇIKAN AVANTAJLI KAMPANYALARI (VİTRİN) -->
+        <section id="featuredSection">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-amberAccent"></i>
+                    <h2 class="font-bold text-sm uppercase tracking-wider text-zinc-600 dark:text-zinc-300">Günün En Avantajlı Fırsatları</h2>
+                </div>
+                <span class="text-[11px] text-zinc-400">Yüksek Getirili</span>
+            </div>
+            <div id="featuredContainer" class="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                <!-- JS ile doldurulacak -->
+            </div>
+        </section>
+
+        <!-- KATEGORİ SEÇİM ÇUBUĞU -->
+        <section>
+            <div id="categoryContainer" class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                <!-- JS ile doldurulacak -->
+            </div>
+        </section>
+
+        <!-- KAMPANYA LİSTESİ -->
+        <section>
+            <div class="flex items-center justify-between mb-3">
+                <h2 id="listTitle" class="font-bold text-base">Tüm Kampanyalar</h2>
+                <span class="text-xs text-zinc-400 flex items-center gap-1">
+                    <i data-lucide="info" class="w-3.5 h-3.5"></i> Sadece Bilgilendirme Amaçlıdır
+                </span>
+            </div>
+
+            <div id="campaignsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- JS ile doldurulacak -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- KAMPANYA DETAY MODAL (BOTTOM SHEET / DIALOG) -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white dark:bg-darkCard border-t sm:border border-zinc-200 dark:border-darkBorder w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-6 space-y-4 animate-in slide-in-from-bottom duration-200">
+            <div class="flex items-center justify-between">
+                <span id="modalBankBadge" class="px-3 py-1 rounded-lg text-xs font-extrabold text-white"></span>
+                <button onclick="closeDetailModal()" class="p-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div>
+                <div class="flex items-center gap-2 text-xs text-zinc-400 mb-1">
+                    <span id="modalCategory"></span> • <span id="modalBrand" class="font-semibold text-emerald-400"></span>
+                </div>
+                <h3 id="modalTitle" class="text-xl font-extrabold leading-snug"></h3>
+            </div>
+
+            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                <div>
+                    <p class="text-[11px] text-zinc-400">Net Kazanım</p>
+                    <p id="modalReward" class="text-lg font-extrabold text-emerald-400"></p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[11px] text-zinc-400">Harcama Şartı</p>
+                    <p id="modalMinSpend" class="text-sm font-bold"></p>
+                </div>
+            </div>
+
+            <p id="modalDesc" class="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed"></p>
+
+            <!-- Katılım Rehberi -->
+            <div class="p-4 rounded-2xl bg-zinc-100 dark:bg-darkBg border border-zinc-200 dark:border-darkBorder space-y-2">
+                <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-500">
+                    <i data-lucide="smartphone" class="w-4 h-4"></i>
+                    <span>Nasıl Katılınır? (Bilgilendirme)</span>
+                </div>
+                <p id="modalHowToJoin" class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed"></p>
+                <p class="text-[11px] text-zinc-400 italic">* Bu uygulama doğrudan kampanya katılımı sağlamaz. Harcama yapmadan önce bankanızın kendi uygulamasından katılmanız gerekir.</p>
+            </div>
+
+            <div class="flex gap-2.5 pt-2">
+                <button onclick="copyJoinInfo()" class="flex-1 py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>Katılım Bilgisini Kopyala</span>
+                </button>
+                <a id="modalSourceLink" href="#" target="_blank" rel="noopener noreferrer" class="py-3 px-4 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+                    <span>Resmi Sayfa</span>
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CÜZDANIM (KART FİLTRESİ) MODAL -->
+    <div id="walletModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder w-full max-w-md rounded-3xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="font-extrabold text-lg">Kartlarımı Filtrele</h3>
+                    <p class="text-xs text-zinc-400">Sadece sahip olduğunuz kredi kartlarının kampanyalarını görün.</p>
+                </div>
+                <button onclick="closeWalletModal()" class="p-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div id="bankFilterList" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                <!-- JS ile doldurulacak -->
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button onclick="resetWalletFilter()" class="flex-1 py-2.5 rounded-xl border border-zinc-300 dark:border-darkBorder text-xs font-bold">Tümünü Seç</button>
+                <button onclick="closeWalletModal()" class="flex-1 py-2.5 rounded-xl bg-emerald-500 text-white text-xs font-bold">Uygula ve Kapat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BİLDİRİM TOAST -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-4 py-3 rounded-xl bg-emerald-500 text-white text-xs font-bold shadow-lg flex items-center gap-2">
+        <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+        <span id="toastText">İşlem başarılı</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. ONLINE VERİ KAYNAĞI AYARI
+        // ==========================================
+        // İleride uzaktan güncellemek istersen GitHub Gist Raw JSON linkini buraya yapıştırabilirsin:
+        const REMOTE_JSON_URL = "ampaigns.json"; 
+
+        // Kategoriler
+        const CATEGORIES = [
+            { name: "Tümü", icon: "layout-grid" },
+            { name: "Market", icon: "shopping-cart" },
+            { name: "Akaryakıt", icon: "fuel" },
+            { name: "E-Ticaret", icon: "shopping-bag" },
+            { name: "Elektronik", icon: "cpu" },
+            { name: "Giyim", icon: "shirt" },
+            { name: "Seyahat", icon: "plane" },
+            { name: "Restoran", icon: "utensils" }
+        ];
+
+        // Banka ve Kart Programları
+        const CARD_PROGRAMS = [
+            { id: "Bonus", name: "Bonus (Garanti BBVA)", color: "#10B981", url: "https://www.bonus.com.tr/kampanyalar" },
+            { id: "Maximum", name: "Maximum (İş Bankası)", color: "#EF4444", url: "https://www.maximum.com.tr/kampanyalar" },
+            { id: "World", name: "World (Yapı Kredi)", color: "#6366F1", url: "https://www.worldcard.com.tr/kampanyalar" },
+            { id: "Axess", name: "Axess (Akbank)", color: "#F59E0B", url: "https://www.axess.com.tr/kampanyalar" },
+            { id: "CardFinans", name: "CardFinans (QNB)", color: "#3B82F6", url: "https://www.cardfinans.com/kampanyalar" },
+            { id: "Paraf", name: "Paraf (Halkbank)", color: "#0EA5E9", url: "https://www.paraf.com.tr/tr/kampanyalar.html" },
+            { id: "Bankkart", name: "Bankkart (Ziraat)", color: "#EC4899", url: "https://www.bankkart.com.tr/kampanyalar" }
+        ];
+
+        // Varsayılan Kampanya Veritabanı
+        const DEFAULT_CAMPAIGNS = [
+            // --- MARKET KAMPANYALARI ---
+            { id: 1, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Market", brand: "Migros, CarrefourSA, A101, ŞOK", title: "Market Alışverişlerinize Toplam 500 TL MaxiPuan!", desc: "Seçili marketlerden farklı günlerde ve tek seferde yapacağınız her 1.250 TL ve üzeri alışverişe 100 TL, toplam 500 TL MaxiPuan.", reward: "500 TL Puan", minSpend: "5 x 1.250 TL", date: "1 - 31 Ekim", color: "#EF4444", isFeatured: true, howToJoin: "İşCep veya Maximum Mobil uygulamasında 'Kampanyalar' bölümünden katılabilirsiniz.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
+            { id: 2, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Market", brand: "Tüm Gıda Marketleri", title: "Market Harcamalarınıza 400 TL Bonus!", desc: "Yurt içi gıda marketlerinde farklı günlerde yapacağınız her 1.000 TL ve üzeri harcamaya 80 TL, toplamda 400 TL Bonus.", reward: "400 TL Bonus", minSpend: "5 x 1.000 TL", date: "1 - 31 Ekim", color: "#10B981", isFeatured: true, howToJoin: "Harcama öncesi BonusFlaş uygulamasından 'Hemen Katıl' butonuna basın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
+            { id: 3, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Market", brand: "Migros & Macrocenter", title: "Migros ve Sanal Market'te 350 TL Worldpuan", desc: "Farklı günlerde yapılacak 4 adet 1.000 TL ve üzeri Migros veya Migros Sanal Market alışverişine 350 TL Worldpuan.", reward: "350 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil uygulamasından kampanya katılımınızı aktif edin.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
+            { id: 4, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Market", brand: "CarrefourSA & Tüm Marketler", title: "Market Alışverişlerinize 450 TL Chip-Para", desc: "Market sektöründe yapacağınız 1.500 TL ve üzeri her ikinci harcamaya 150 TL, toplam 450 TL Chip-para.", reward: "450 TL Chip", minSpend: "1.500 TL", date: "1 - 31 Ekim", color: "#F59E0B", isFeatured: true, howToJoin: "Juzdan uygulamasından harcama öncesi 'Hemen Katıl'a tıklayın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
+            { id: 5, bank: "Bankkart", bankFullName: "Bankkart (Ziraat)", category: "Market", brand: "Tarım Kredi, A101, BİM, ŞOK", title: "Market Alışverişlerinde 500 TL Bankkart Lira!", desc: "Anlaşmalı marketlerden tek seferde yapılacak her 1.000 TL ve üzeri alışverişe 100 TL, toplam 500 TL Bankkart Lira.", reward: "500 TL Lira", minSpend: "5 x 1.000 TL", date: "Ay sonuna kadar", color: "#EC4899", isFeatured: true, howToJoin: "Bankkart Mobil'den veya MARKET yazıp 4757'ye SMS göndererek katılın.", sourceUrl: "https://www.bankkart.com.tr/kampanyalar" },
+            { id: 6, bank: "Paraf", bankFullName: "Paraf (Halkbank)", category: "Market", brand: "Tüm Marketler", title: "Market Harcamalarınıza 300 TL ParafPara", desc: "Gıda marketlerinde yapacağınız 4 adet 1.000 TL ve üzeri alışverişe toplam 300 TL ParafPara.", reward: "300 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#0EA5E9", isFeatured: false, howToJoin: "Paraf Mobil uygulamasından veya MARKET yazıp 3404'e SMS göndererek katılın.", sourceUrl: "https://www.paraf.com.tr/tr/kampanyalar.html" },
+
+            // --- AKARYAKIT VE ŞARJ KAMPANYALARI ---
+            { id: 7, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Akaryakıt", brand: "Opet & Sunpet", title: "Opet ve Sunpet'te 350 TL Bonus Fırsatı!", desc: "Farklı günlerde ve tek seferde yapılacak 4 adet 1.000 TL ve üzeri akaryakıt veya otogaz harcamasına 350 TL Bonus.", reward: "350 TL Bonus", minSpend: "4 x 1.000 TL", date: "1 - 31 Ekim", color: "#10B981", isFeatured: true, howToJoin: "BonusFlaş uygulamasındaki 'Hemen Katıl' butonuna tıklayın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
+            { id: 8, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Akaryakıt", brand: "Shell & Opet", title: "Akaryakıt Alımlarınıza 300 TL Worldpuan", desc: "World üye işyeri istasyonlarından farklı günlerde 4 kez 1.000 TL ve üzeri yakıt alımına 300 TL Worldpuan.", reward: "300 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil üzerinden kampanyaya katılabilirsiniz.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
+            { id: 9, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Akaryakıt", brand: "Petrol Ofisi & TotalEnergies", title: "Petrol Ofisi ve TotalEnergies'te 320 TL MaxiPuan", desc: "Farklı günlerde 4 adet 1.000 TL ve üzeri akaryakıt harcamasına 320 TL MaxiPuan.", reward: "320 TL Puan", minSpend: "4 x 1.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "Maximum Mobil veya İşCep üzerinden katılabilirsiniz.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
+            { id: 10, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Akaryakıt", brand: "ZES, Eşarj, Trugo & Opet", title: "Elektrikli Araç Şarjı ve Yakıta 300 TL Chip-Para", desc: "Akaryakıt istasyonları ve elektrikli araç şarj istasyonlarında toplam 3.500 TL harcamaya 300 TL Chip-para.", reward: "300 TL Chip", minSpend: "3.500 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulaması üzerinden kampanyaya katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
+            { id: 11, bank: "CardFinans", bankFullName: "CardFinans (QNB)", category: "Akaryakıt", brand: "Aytemiz & Shell", title: "Akaryakıt Harcamalarına 250 TL ParaPuan", desc: "Farklı günlerde yapılacak 4 adet 900 TL ve üzeri akaryakıt alımına 250 TL ParaPuan.", reward: "250 TL Puan", minSpend: "4 x 900 TL", date: "Ay sonuna kadar", color: "#3B82F6", isFeatured: false, howToJoin: "QNB Mobil uygulamasından kampanya katılımınızı onaylayın.", sourceUrl: "https://www.cardfinans.com/kampanyalar" },
+
+            // --- E-TİCARET KAMPANYALARI ---
+            { id: 12, bank: "World", bankFullName: "World (Yapı Kredi)", category: "E-Ticaret", brand: "Trendyol & Hepsiburada", title: "Trendyol ve Hepsiburada'da 600 TL Worldpuan!", desc: "Tek seferde yapılacak her 2.000 TL ve üzeri alışverişe 200 TL, toplamda 600 TL Worldpuan.", reward: "600 TL Puan", minSpend: "3 x 2.000 TL", date: "Son 5 Gün", color: "#6366F1", isFeatured: true, howToJoin: "World Mobil uygulamasından 'Hemen Katıl' butonuna basın.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
+            { id: 13, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "E-Ticaret", brand: "Amazon.com.tr & N11", title: "Online Alışverişlerinize 500 TL Bonus!", desc: "Seçili e-ticaret sitelerinde tek seferde 2.500 TL ve üzeri her harcamaya 250 TL, toplam 500 TL Bonus.", reward: "500 TL Bonus", minSpend: "2 x 2.500 TL", date: "1 - 31 Ekim", color: "#10B981", isFeatured: true, howToJoin: "BonusFlaş uygulaması üzerinden harcama öncesi katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
+            { id: 14, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "E-Ticaret", brand: "Pazarama & Trendyol", title: "İnternet Alışverişlerinize 400 TL MaxiPuan", desc: "Online pazaryerlerinde yapacağınız 2.000 TL ve üzeri alışverişlerinize toplam 400 TL MaxiPuan.", reward: "400 TL Puan", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "İşCep veya Maximum Mobil'den katılım sağlayın.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
+            { id: 15, bank: "Axess", bankFullName: "Axess (Akbank)", category: "E-Ticaret", brand: "Hepsiburada & Amazon", title: "E-Ticaret Harcamalarına 350 TL Chip-Para", desc: "İnternetten yapacağınız 2.500 TL ve üzeri alışverişe anında 350 TL Chip-para.", reward: "350 TL Chip", minSpend: "2.500 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulaması üzerinden kampanyaya katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
+            { id: 16, bank: "Bankkart", bankFullName: "Bankkart (Ziraat)", category: "E-Ticaret", brand: "Trendyol, Hepsiburada, PTTAVM", title: "E-Ticaret Alışverişlerinde 400 TL Bankkart Lira", desc: "Seçili e-ticaret sitelerinden tek seferde 2.000 TL ve üzeri harcamaya 400 TL Bankkart Lira.", reward: "400 TL Lira", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#EC4899", isFeatured: false, howToJoin: "Bankkart Mobil'den veya ETICARET yazıp 4757'ye SMS gönderin.", sourceUrl: "https://www.bankkart.com.tr/kampanyalar" },
+
+            // --- ELEKTRONİK VE OYUN KAMPANYALARI ---
+            { id: 17, bank: "CardFinans", bankFullName: "CardFinans (QNB)", category: "Elektronik", brand: "MediaMarkt, Teknosa, Vatan", title: "Teknoloji ve Donanım Alışverişlerinde Peşin Fiyatına 6 Taksit", desc: "Bilgisayar, ağ ekipmanları ve elektronik ürün alışverişlerinizde 25.000 TL'ye kadar vade farksız 6 taksit.", reward: "6 Taksit", minSpend: "3.000 TL", date: "Yıl sonuna kadar", color: "#3B82F6", isFeatured: false, howToJoin: "Ödeme adımında 6 taksit seçmeniz yeterlidir.", sourceUrl: "https://www.cardfinans.com/kampanyalar" },
+            { id: 18, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Elektronik", brand: "PlayStation Store, Steam, İtopya", title: "Oyun ve Teknoloji Harcamalarına 500 TL İndirim!", desc: "Dijital oyun mağazaları ve teknoloji marketlerinde yapılacak 2.000 TL üzeri harcamaya 500 TL indirim.", reward: "500 TL İndirim", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: true, howToJoin: "Maximum Mobil'den 'Oyun ve Teknoloji' kampanyasına katılın.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
+            { id: 19, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Elektronik", brand: "Vatan Bilgisayar & MediaMarkt", title: "Elektronik Alışverişlerinize 750 TL Bonus!", desc: "Tek seferde yapılacak 15.000 TL ve üzeri elektronik harcamasına 750 TL Bonus fırsatı.", reward: "750 TL Bonus", minSpend: "15.000 TL", date: "Ay sonuna kadar", color: "#10B981", isFeatured: false, howToJoin: "BonusFlaş uygulaması üzerinden harcama öncesi katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
+            { id: 20, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Elektronik", brand: "Apple, Gürgençler, Troy", title: "Seçili Teknoloji Mağazalarında +3 Taksit ve 500 TL Puan", desc: "10.000 TL ve üzeri alışverişlerinize vade farksız ek taksit ve 500 TL Worldpuan.", reward: "500 TL Puan", minSpend: "10.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil uygulamasından kampanya katılımınızı onaylayın.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
+
+            // --- GİYİM VE KOZMETİK KAMPANYALARI ---
+            { id: 21, bank: "Bankkart", bankFullName: "Bankkart (Ziraat)", category: "Giyim", brand: "Zara, Mavi, Boyner, LCW", title: "Giyim ve Ayakkabı Alışverişine 450 TL Bankkart Lira", desc: "Anlaşmalı giyim mağazalarından tek seferde yapacağınız 2.500 TL ve üzeri alışverişe 450 TL Bankkart Lira.", reward: "450 TL Lira", minSpend: "2.500 TL", date: "1 - 31 Ekim", color: "#EC4899", isFeatured: false, howToJoin: "Bankkart Mobil uygulamasından veya GIYIM yazıp 4757'ye SMS gönderin.", sourceUrl: "https://www.bankkart.com.tr/kampanyalar" },
+            { id: 22, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Giyim", brand: "Boyner, Beymen, Network", title: "Giyim ve Kozmetik Harcamalarına 500 TL Chip-Para", desc: "Giyim sektöründe yapacağınız 3.000 TL ve üzeri alışverişe 500 TL Chip-para.", reward: "500 TL Chip", minSpend: "3.000 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulamasından harcama öncesi katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
+            { id: 23, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Giyim", brand: "Zara, Bershka, Pull&Bear, Stradivarius", title: "Inditex Mağazalarında 300 TL Worldpuan", desc: "Tek seferde yapılacak 2.000 TL ve üzeri giyim alışverişine 300 TL Worldpuan.", reward: "300 TL Puan", minSpend: "2.000 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil üzerinden katılım sağlayın.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
+            { id: 24, bank: "Paraf", bankFullName: "Paraf (Halkbank)", category: "Giyim", brand: "Tüm Giyim Mağazaları", title: "Giyim Alışverişlerinize 350 TL ParafPara", desc: "Yurt içi giyim ve ayakkabı mağazalarında 2.500 TL harcamaya 350 TL ParafPara.", reward: "350 TL Puan", minSpend: "2.500 TL", date: "Ay sonuna kadar", color: "#0EA5E9", isFeatured: false, howToJoin: "Paraf Mobil'den veya GIYIM yazıp 3404'e SMS gönderin.", sourceUrl: "https://www.paraf.com.tr/tr/kampanyalar.html" },
+
+            // --- SEYAHAT VE KONAKLAMA KAMPANYALARI ---
+            { id: 25, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Seyahat", brand: "THY, Pegasus, Obilet, ETS", title: "Uçak Bileti ve Otel Harcamalarında 600 TL MaxiPuan", desc: "Tek seferde yapılacak 4.000 TL ve üzeri seyahat ve konaklama harcamalarınıza 600 TL MaxiPuan.", reward: "600 TL Puan", minSpend: "4.000 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "Maximum Mobil üzerinden harcama öncesi katılım sağlayın.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
+            { id: 26, bank: "Paraf", bankFullName: "Paraf (Halkbank)", category: "Seyahat", brand: "THY, AJet, Pegasus", title: "Yurt İçi ve Yurt Dışı Uçak Biletine 500 TL ParafPara", desc: "Havayolu firmalarından alacağınız 3.500 TL ve üzeri uçak biletlerine 500 TL ParafPara.", reward: "500 TL Puan", minSpend: "3.500 TL", date: "Ay sonuna kadar", color: "#0EA5E9", isFeatured: false, howToJoin: "Paraf Mobil'den veya SEYAHAT yazıp 3404'e SMS gönderin.", sourceUrl: "https://www.paraf.com.tr/tr/kampanyalar.html" },
+            { id: 27, bank: "Axess", bankFullName: "Axess (Akbank)", category: "Seyahat", brand: "Jolly Tur, Setur, Tatilbudur", title: "Konaklama ve Tur Harcamalarına 1.000 TL Chip-Para", desc: "Seçili acentelerden yapılacak 15.000 TL ve üzeri rezervasyonlara 1.000 TL Chip-para ve 6 taksit.", reward: "1.000 TL Chip", minSpend: "15.000 TL", date: "Ay sonuna kadar", color: "#F59E0B", isFeatured: false, howToJoin: "Juzdan uygulaması üzerinden kampanyaya katılın.", sourceUrl: "https://www.axess.com.tr/kampanyalar" },
+            { id: 28, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Seyahat", brand: "Yurt Dışı Harcamalar & Duty Free", title: "Yurt Dışı Fiziki POS Harcamalarınıza %10 Bonus!", desc: "Yurt dışı seyahatlerinizde yapacağınız 5.000 TL ve üzeri alışverişlere toplam 750 TL Bonus.", reward: "750 TL Bonus", minSpend: "5.000 TL", date: "Ay sonuna kadar", color: "#10B981", isFeatured: false, howToJoin: "Seyahat öncesi BonusFlaş'tan 'Yurt Dışı Kampanyası'na katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
+
+            // --- RESTORAN VE KAFE KAMPANYALARI ---
+            { id: 29, bank: "Bonus", bankFullName: "Bonus (Garanti BBVA)", category: "Restoran", brand: "Tüm Restoran ve Kafeler", title: "Restoran ve Kahve Harcamalarına %20 Bonus!", desc: "Hafta sonu kafe ve restoranlarda yapacağınız 500 TL ve üzeri harcamalara %20, toplamda 300 TL Bonus.", reward: "300 TL Bonus", minSpend: "500 TL", date: "Her Hafta Sonu", color: "#10B981", isFeatured: false, howToJoin: "BonusFlaş uygulaması üzerinden 'Restoran Kampanyası'na katılın.", sourceUrl: "https://www.bonus.com.tr/kampanyalar" },
+            { id: 30, bank: "Maximum", bankFullName: "Maximum (İş Bankası)", category: "Restoran", brand: "Yemeksepeti, GetirYemek, Trendyol Yemek", title: "Online Yemek Siparişlerinize 200 TL MaxiPuan", desc: "Tek seferde yapılacak 400 TL ve üzeri her yemek siparişine 50 TL, toplamda 200 TL MaxiPuan.", reward: "200 TL Puan", minSpend: "4 x 400 TL", date: "Ay sonuna kadar", color: "#EF4444", isFeatured: false, howToJoin: "Maximum Mobil'den kampanyaya katılabilirsiniz.", sourceUrl: "https://www.maximum.com.tr/kampanyalar" },
+            { id: 31, bank: "World", bankFullName: "World (Yapı Kredi)", category: "Restoran", brand: "Starbucks, Kahve Dünyası, Espressolab", title: "Kahve Zincirlerinde 5. Kahveniz World'den!", desc: "Anlaşmalı kahve mağazalarında yapacağınız 4 adet 150 TL üzeri harcamaya 150 TL Worldpuan.", reward: "150 TL Puan", minSpend: "4 x 150 TL", date: "Ay sonuna kadar", color: "#6366F1", isFeatured: false, howToJoin: "World Mobil'den 'Kahve Kampanyası'nı aktif edin.", sourceUrl: "https://www.worldcard.com.tr/kampanyalar" },
+            { id: 32, bank: "CardFinans", bankFullName: "CardFinans (QNB)", category: "Restoran", brand: "Tüm Restoranlar", title: "Restoran Harcamalarınıza 250 TL ParaPuan", desc: "Cumartesi ve Pazar günleri restoranlarda yapılacak 1.000 TL ve üzeri harcamaya 250 TL ParaPuan.", reward: "250 TL Puan", minSpend: "1.000 TL", date: "Hafta Sonları", color: "#3B82F6", isFeatured: false, howToJoin: "QNB Mobil uygulamasından katılabilirsiniz.", sourceUrl: "https://www.cardfinans.com/kampanyalar" }
+        ];
+
+        // ==========================================
+        // 2. DURUM (STATE) YÖNETİMİ
+        // ==========================================
+        let campaigns = [];
+        let selectedCategory = "Tümü";
+        let searchQuery = "";
+        let activeCampaignModal = null;
+        let selectedBanks = JSON.parse(localStorage.getItem("selectedBanks")) || CARD_PROGRAMS.map(b => b.id);
+
+        // ==========================================
+        // 3. OTOMATİK GÜNCELLEME MOTORU (3 Günde Bir & Ayın 1'i)
+        // ==========================================
+        async function checkAndSyncCampaigns(force = false) {
+            const now = new Date();
+            const lastSync = localStorage.getItem("lastSyncTimestamp");
+            const lastSyncMonth = localStorage.getItem("lastSyncMonth");
+            const currentMonthKey = `${now.getFullYear()}-${now.getMonth() + 1}`;
+
+            const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+            const isFirstDayOfMonth = now.getDate() === 1 && lastSyncMonth !== currentMonthKey;
+            const isThreeDaysPassed = !lastSync || (now.getTime() - parseInt(lastSync)) > THREE_DAYS_MS;
+
+            if (force || isFirstDayOfMonth || isThreeDaysPassed) {
+                await fetchCampaignsFromSource();
+                localStorage.setItem("lastSyncTimestamp", now.getTime().toString());
+                localStorage.setItem("lastSyncMonth", currentMonthKey);
+                if (force) showToast("Kampanyalar güncel verilerle senkronize edildi!");
+            } else {
+                const cached = localStorage.getItem("cachedCampaigns");
+                campaigns = cached ? JSON.parse(cached) : DEFAULT_CAMPAIGNS;
+            }
+
+            updateSyncStatusUI();
+            renderAll();
+        }
+
+        async function fetchCampaignsFromSource() {
+            if (REMOTE_JSON_URL.trim() !== "") {
+                try {
+                    const res = await fetch(REMOTE_JSON_URL, { cache: "no-store" });
+                    if (res.ok) {
+                        campaigns = await res.json();
+                        localStorage.setItem("cachedCampaigns", JSON.stringify(campaigns));
+                        return;
+                    }
+                } catch (err) {
+                    console.warn("Uzaktan JSON çekilemedi, yerel veri kullanılıyor:", err);
+                }
+            }
+            campaigns = DEFAULT_CAMPAIGNS;
+            localStorage.setItem("cachedCampaigns", JSON.stringify(campaigns));
+        }
+
+        function updateSyncStatusUI() {
+            const lastSync = parseInt(localStorage.getItem("lastSyncTimestamp") || Date.now());
+            const d = new Date(lastSync);
+            const timeStr = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+            const dateStr = d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+            document.getElementById("syncStatusText").innerHTML = `
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Oto-Kontrol Aktif (3 Günde Bir & Ayın 1'i) • Son: ${dateStr} ${timeStr}
+            `;
+        }
+
+        function forceSync() {
+            const icon = document.getElementById("syncIcon");
+            icon.classList.add("animate-spin");
+            setTimeout(async () => {
+                await checkAndSyncCampaigns(true);
+                icon.classList.remove("animate-spin");
+            }, 500);
+        }
+
+        // ==========================================
+        // 4. ARAYÜZ ÇİZİM (RENDER) FONKSİYONLARI
+        // ==========================================
+        function renderAll() {
+            renderCategories();
+            renderFeatured();
+            renderCampaignList();
+            updateWalletBadge();
+            lucide.createIcons();
+        }
+
+        function renderCategories() {
+            const container = document.getElementById("categoryContainer");
+            container.innerHTML = CATEGORIES.map(cat => {
+                const active = selectedCategory === cat.name;
+                return `
+                    <button onclick="selectCategory('${cat.name}')" class="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold border transition ${
+                        active 
+                        ? 'bg-emerald-500 text-white border-emerald-500 shadow-md shadow-emerald-500/20' 
+                        : 'bg-white dark:bg-darkCard text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-darkBorder hover:border-emerald-500/50'
+                    }">
+                        <i data-lucide="${cat.icon}" class="w-4 h-4"></i>
+                        <span>${cat.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function renderFeatured() {
+            const section = document.getElementById("featuredSection");
+            const container = document.getElementById("featuredContainer");
+
+            // Arama yapılıyorsa veya kategori seçiliyse vitrini gizle ki sonuçlar hemen görünsün
+            if (searchQuery.trim() !== "" || selectedCategory !== "Tümü") {
+                section.classList.add("hidden");
+                return;
+            }
+            section.classList.remove("hidden");
+
+            const featuredList = campaigns.filter(c => c.isFeatured && selectedBanks.includes(c.bank));
+            container.innerHTML = featuredList.map(c => `
+                <div onclick="openDetailModal(${c.id})" class="cursor-pointer shrink-0 w-72 sm:w-80 p-5 rounded-3xl bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500/50 transition relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-28 h-28 rounded-full blur-2xl opacity-15 pointer-events-none" style="background: ${c.color}"></div>
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold text-white" style="background: ${c.color}">${c.bank}</span>
+                        <span class="text-sm font-black text-emerald-500">${c.reward}</span>
+                    </div>
+                    <h3 class="font-extrabold text-sm leading-snug mb-3 line-clamp-2 group-hover:text-emerald-400 transition">${c.title}</h3>
+                    <div class="flex items-center justify-between text-[11px] text-zinc-400 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
+                        <span class="truncate max-w-[140px]">📍 ${c.brand}</span>
+                        <span class="text-amberAccent font-semibold">${c.date}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCampaignList() {
+            const grid = document.getElementById("campaignsGrid");
+            const titleEl = document.getElementById("listTitle");
+
+            const q = searchQuery.toLowerCase().trim();
+            const filtered = campaigns.filter(c => {
+                const matchBank = selectedBanks.includes(c.bank);
+                const matchCategory = selectedCategory === "Tümü" || c.category === selectedCategory;
+                const matchSearch = q === "" || 
+                    c.title.toLowerCase().includes(q) || 
+                    c.brand.toLowerCase().includes(q) || 
+                    c.bankFullName.toLowerCase().includes(q) ||
+                    c.category.toLowerCase().includes(q);
+                return matchBank && matchCategory && matchSearch;
+            });
+
+            titleEl.textContent = `${selectedCategory} Kampanyaları (${filtered.length})`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full py-12 text-center space-y-2 bg-white dark:bg-darkCard rounded-3xl border border-zinc-200 dark:border-darkBorder">
+                        <p class="font-bold text-sm">Bu kriterde kampanya bulunamadı.</p>
+                        <p class="text-xs text-zinc-400">Farklı bir marka arayabilir veya kart filtrenizi sıfırlayabilirsiniz.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(c => `
+                <div onclick="openDetailModal(${c.id})" class="cursor-pointer p-5 rounded-3xl bg-white dark:bg-darkCard border border-zinc-200 dark:border-darkBorder hover:border-emerald-500/60 transition flex flex-col justify-between gap-3 shadow-sm">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-2.5">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold" style="background: ${c.color}20; color: ${c.color}">${c.bank}</span>
+                                <span class="text-xs text-zinc-400 font-medium">${c.category} • <strong class="text-zinc-600 dark:text-zinc-300">${c.brand}</strong></span>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-xl bg-emerald-500/15 text-emerald-400 font-extrabold text-xs shrink-0">${c.reward}</span>
+                        </div>
+                        <h3 class="font-extrabold text-base leading-snug mb-1.5">${c.title}</h3>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">${c.desc}</p>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-zinc-100 dark:border-zinc-800/80 text-xs">
+                        <span class="text-zinc-400 flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${c.date}
+                        </span>
+                        <span class="text-emerald-500 font-bold flex items-center gap-1">
+                            Katılım Bilgisi <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==========================================
+        // 5. ETKİLEŞİMLER VE MODALLAR
+        // ==========================================
+        function selectCategory(catName) {
+            selectedCategory = catName;
+            renderAll();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val;
+            const clearBtn = document.getElementById("clearSearchBtn");
+            if (val.trim() !== "") clearBtn.classList.remove("hidden");
+            else clearBtn.classList.add("hidden");
+            renderAll();
+        }
+
+        function quickBrandSearch(brand) {
+            const input = document.getElementById("searchInput");
+            input.value = brand;
+            selectedCategory = "Tümü";
+            handleSearch(brand);
+        }
+
+        function clearSearch() {
+            const input = document.getElementById("searchInput");
+            input.value = "";
+            handleSearch("");
+        }
+
+        function openDetailModal(id) {
+            const c = campaigns.find(x => x.id === id);
+            if (!c) return;
+            activeCampaignModal = c;
+
+            const badge = document.getElementById("modalBankBadge");
+            badge.textContent = c.bankFullName;
+            badge.style.backgroundColor = c.color;
+
+            document.getElementById("modalCategory").textContent = c.category;
+            document.getElementById("modalBrand").textContent = c.brand;
+            document.getElementById("modalTitle").textContent = c.title;
+            document.getElementById("modalReward").textContent = c.reward;
+            document.getElementById("modalMinSpend").textContent = c.minSpend || "Belirtilmemiş";
+            document.getElementById("modalDesc").textContent = c.desc;
+            document.getElementById("modalHowToJoin").textContent = c.howToJoin;
+            document.getElementById("modalSourceLink").href = c.sourceUrl;
+
+            document.getElementById("detailModal").classList.remove("hidden");
+            lucide.createIcons();
+        }
+
+        function closeDetailModal() {
+            document.getElementById("detailModal").classList.add("hidden");
+        }
+
+        function copyJoinInfo() {
+            if (!activeCampaignModal) return;
+            navigator.clipboard.writeText(activeCampaignModal.howToJoin);
+            showToast("Katılım bilgisi panoya kopyalandı!");
+        }
+
+        // Cüzdanım (Kart Filtresi) İşlemleri
+        function openWalletModal() {
+            const list = document.getElementById("bankFilterList");
+            list.innerHTML = CARD_PROGRAMS.map(b => {
+                const checked = selectedBanks.includes(b.id);
+                return `
+                    <label class="flex items-center justify-between p-3 rounded-2xl bg-zinc-100 dark:bg-darkBg border border-zinc-200 dark:border-darkBorder cursor-pointer">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-3 h-3 rounded-full" style="background: ${b.color}"></span>
+                            <span class="text-xs font-bold">${b.name}</span>
+                        </div>
+                        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleBankSelection('${b.id}')" class="w-4 h-4 accent-emerald-500">
+                    </label>
+                `;
+            }).join('');
+            document.getElementById("walletModal").classList.remove("hidden");
+        }
+
+        function closeWalletModal() {
+            document.getElementById("walletModal").classList.add("hidden");
+            renderAll();
+        }
+
+        function toggleBankSelection(bankId) {
+            if (selectedBanks.includes(bankId)) {
+                selectedBanks = selectedBanks.filter(id => id !== bankId);
+            } else {
+                selectedBanks.push(bankId);
+            }
+            localStorage.setItem("selectedBanks", JSON.stringify(selectedBanks));
+            updateWalletBadge();
+        }
+
+        function resetWalletFilter() {
+            selectedBanks = CARD_PROGRAMS.map(b => b.id);
+            localStorage.setItem("selectedBanks", JSON.stringify(selectedBanks));
+            openWalletModal();
+            updateWalletBadge();
+        }
+
+        function updateWalletBadge() {
+            const badge = document.getElementById("selectedCardsBadge");
+            badge.textContent = selectedBanks.length === CARD_PROGRAMS.length ? "Tümü" : `${selectedBanks.length} Kart`;
+        }
+
+        // Karanlık / Aydınlık Mod
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById("themeIcon");
+            html.classList.toggle("dark");
+            const isDark = html.classList.contains("dark");
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+            icon.setAttribute("data-lucide", isDark ? "sun" : "moon");
+            lucide.createIcons();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            document.getElementById("toastText").textContent = msg;
+            toast.classList.remove("hidden");
+            setTimeout(() => toast.classList.add("hidden"), 2500);
+        }
+
+        // Başlangıç Yüklemesi
+        window.addEventListener("DOMContentLoaded", () => {
+            if (localStorage.getItem("theme") === "light") {
+                document.documentElement.classList.remove("dark");
+                document.getElementById("themeIcon").setAttribute("data-lucide", "moon");
+            }
+            checkAndSyncCampaigns();
+        });
+    </script>
+</body>
+</html>
